@@ -4,13 +4,14 @@ import androidx.compose.ui.graphics.Color
 
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
-
+val veryLightGrey = Color(0xF594A597)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 val Zinc = Color(0xFF2F7E79)
 val LightGrey = Color(0xFF666666)
 val Navy = Color(0xFF1B1B1F)
-val Navy80 = Color(0xCCFFFFFF)
+val DarkGreen = Color(0xFF001C09)
+val Navy80 = Color(0xED00FF5B)
 val Teal = Color(0xFF00AEAE)
 val Teal80 = Color(0xCCFFFFFF)
 val Indigo = Color(0xFF4B0082)
@@ -35,7 +36,7 @@ sealed class ThemeColors(
         surface = Teal,
         primary = Zinc,
         secondary = Indigo,
-        tertiary = Amethyst,
+        tertiary = White80,
         text = White
     )
 

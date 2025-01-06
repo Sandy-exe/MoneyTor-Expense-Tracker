@@ -16,10 +16,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class AddExpenseViewModel constructor(private val dao: ExpenseDao) : BaseViewModel() {
+class EditExpenseViewModel constructor(private val dao: ExpenseDao) : BaseViewModel() {
     private suspend fun addExpense(expenseEntity: ExpenseEntity): Boolean {
         return try {
             dao.insertExpense(expenseEntity)
+            true
+        } catch (ex: Throwable) {
+            false
+        }
+    }
+
+    private suspend fun updateExpense(expenseEntity: ExpenseEntity): Boolean {
+        return try {
+            dao.updateExpense(expenseEntity) // Use the correct method for updating
+            println(expenseEntity.id)
+            println("Expense Updated successfully")
+            true
+        } catch (ex: Throwable) {
+            false
+        }
+    }
+
+    private suspend fun deleteExpense(expenseEntity: ExpenseEntity): Boolean {
+        return try {
+            dao.deleteExpense(expenseEntity) // Use the correct method for deleting
+            println(expenseEntity.id)
+            println("Expense deleted successfully")
             true
         } catch (ex: Throwable) {
             false
@@ -32,6 +54,28 @@ class AddExpenseViewModel constructor(private val dao: ExpenseDao) : BaseViewMod
                 viewModelScope.launch {
                     withContext(Dispatchers.IO) {
                         val result = addExpense(event.expenseEntity)
+                        if (result) {
+                            _navigationEvent.emit(NavigationEvent.NavigateBack)
+                        }
+                    }
+                }
+            }
+
+            is AddExpenseUiEvent.OnUpdateExpenseClicked -> {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val result = updateExpense(event.expenseEntity)
+                        if (result) {
+                            _navigationEvent.emit(NavigationEvent.NavigateBack)
+                        }
+                    }
+                }
+            }
+
+            is AddExpenseUiEvent.OnDeleteExpenseClicked -> {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val result = deleteExpense(event.expenseEntity)
                         if (result) {
                             _navigationEvent.emit(NavigationEvent.NavigateBack)
                         }
@@ -56,11 +100,11 @@ class AddExpenseViewModel constructor(private val dao: ExpenseDao) : BaseViewMod
 
 }
 
-class AddExpenseModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class EditExpenseModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AddExpenseViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(EditExpenseViewModel::class.java)) {
             val expenseDao = ExpenseDatabase.getInstance(context).expenseDao()
-            return AddExpenseViewModel(expenseDao) as T
+            return EditExpenseViewModel(expenseDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -68,6 +112,8 @@ class AddExpenseModelFactory(private val context: Context) : ViewModelProvider.F
 
 sealed class AddExpenseUiEvent : UiEvent() {
     data class OnAddExpenseClicked(val expenseEntity: ExpenseEntity) : AddExpenseUiEvent()
+    data class OnUpdateExpenseClicked(val expenseEntity: ExpenseEntity) : AddExpenseUiEvent()
+    data class OnDeleteExpenseClicked(val expenseEntity: ExpenseEntity) : AddExpenseUiEvent()
     data object OnBackPressed : AddExpenseUiEvent()
     data object OnMenuClicked : AddExpenseUiEvent()
 }

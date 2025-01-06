@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel(dao: ExpenseDao) : BaseViewModel() {
     val expenses = dao.getAllExpense()
 
+
     override fun onEvent(event: UiEvent) {
         when (event) {
             is HomeUiEvent.OnAddExpenseClicked -> {

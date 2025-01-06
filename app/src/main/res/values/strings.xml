@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">ExpenseTrackerV1</string>
+    <string name="app_name">Moneytor</string>
+    <string name="Rs">\u20B9</string>
 </resources>

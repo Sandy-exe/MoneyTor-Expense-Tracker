@@ -37,6 +37,7 @@ import com.example.expensetrackerv1.feature.home.TransactionItem
 import com.example.expensetrackerv1.utils.Utils
 import com.example.expensetrackerv1.feature.home.HomeViewModel
 import com.example.expensetrackerv1.feature.home.HomeViewModelFactory
+import com.example.expensetrackerv1.ui.theme.DarkGreen
 import com.example.expensetrackerv1.widget.ExpenseTextView
 
 @Composable
@@ -48,14 +49,39 @@ fun TransactionListScreen(navController: NavController) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     val filteredTransactions = when (filterType) {
+
         "Expense" -> state.value.filter { it.type == "Expense" }
         "Income" -> state.value.filter { it.type == "Income" }
         else -> state.value
     }
 
-    val filteredByDateRange = filteredTransactions.filter { _ ->
+    val filteredByDateRange = filteredTransactions.filter { transaction ->
         // Apply date range filter logic here
-        true
+        val transactionDateInMillis = try {
+            Utils.getMilliFromDate(transaction.date) // Convert the transaction date to milliseconds
+        } catch (e: Exception) {
+            null // Handle invalid date formats gracefully
+        }
+
+        // Get the current date in milliseconds
+        val currentDateInMillis = System.currentTimeMillis()
+
+        // Apply date range filter logic
+        val dateRangeStartInMillis = when (dateRange) {
+            "Yesterday" -> currentDateInMillis - 24 * 60 * 60 * 1000 // Subtract 1 day in milliseconds
+            "Today" -> currentDateInMillis
+            "Last 30 Days" -> currentDateInMillis - 30L * 24 * 60 * 60 * 1000 // Subtract 30 days
+            "Last 90 Days" -> currentDateInMillis - 90L * 24 * 60 * 60 * 1000 // Subtract 90 days
+            "Last Year" -> currentDateInMillis - 365L * 24 * 60 * 60 * 1000 // Subtract 365 days
+            else -> null // No date range filter
+        }
+
+        // If the date range is valid, apply the filter
+        if (dateRangeStartInMillis != null && transactionDateInMillis != null) {
+            transactionDateInMillis >= dateRangeStartInMillis && transactionDateInMillis <= currentDateInMillis
+        } else {
+            true // If no date range filter is selected or invalid, include the transaction
+        }
     }
 
     Scaffold(
@@ -119,8 +145,9 @@ fun TransactionListScreen(navController: NavController) {
                                 listOfItems = listOf("All", "Expense", "Income"),
                                 onItemSelected = { selected ->
                                     filterType = selected
-                                    menuExpanded = false // Close menu after selection
-                                }
+                                    menuExpanded = true // Close menu after selection
+                                },
+                                onSelected = "Select Filter"
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -131,19 +158,21 @@ fun TransactionListScreen(navController: NavController) {
                                 onItemSelected = { selected ->
                                     dateRange = selected
                                     menuExpanded = false // Close menu after selection
-                                }
+                                },
+                                onSelected = "Select Time"
                             )
                         }
                     }
                 }
                 items(filteredByDateRange) { item ->
                     val icon = Utils.getItemIcon(item)
+                    val amount = if (item.type == "Income") item.amount else item.amount * -1
                     TransactionItem(
                         title = item.title,
-                        amount = item.amount.toString(),
+                        amount = amount.toString(),
                         icon = icon,
                         date = item.date,
-                        color = if (item.type == "Income") Color.Green else Color.Red,
+                        color = DarkGreen,
                         Modifier.animateItem(
                             fadeInSpec = null,
                             fadeOutSpec = null,

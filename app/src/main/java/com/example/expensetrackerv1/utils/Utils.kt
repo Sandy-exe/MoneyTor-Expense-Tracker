@@ -16,12 +16,20 @@ object Utils {
         return dateFormatter.format(dateInMillis)
     }
 
+    fun convertDateToMillis(dateString: String, format: String = "dd/MM/yyyy"): Long {
+        val sdf = SimpleDateFormat(format)
+        val date = sdf.parse(dateString)
+        return date.time
+    }
+
+
+
     fun formatDateForChart(dateInMillis: Long): String {
         val dateFormatter = SimpleDateFormat("dd-MMM", Locale.getDefault())
         return dateFormatter.format(dateInMillis)
     }
 
-    fun formatCurrency(amount: Double, locale: Locale = Locale.US): String {
+    fun formatCurrency(amount: Double, locale:  Locale = Locale("en", "IN")): String {
         val currencyFormatter = NumberFormat.getCurrencyInstance(locale)
         return currencyFormatter.format(amount)
     }
@@ -62,14 +70,10 @@ object Utils {
     }
 
     fun getItemIcon(item: ExpenseEntity): Int {
-        return if (item.title == "Paypal") {
-            R.drawable.ic_paypal
-        } else if (item.title == "Netflix") {
-            R.drawable.ic_netflix
-        } else if (item.title == "Starbucks") {
-            R.drawable.ic_starbucks
+        return if (item.type == "Income") {
+            R.drawable.ic_incomepng
         } else {
-            R.drawable.ic_upwork
+            R.drawable.ic_expensepng
         }
     }
 

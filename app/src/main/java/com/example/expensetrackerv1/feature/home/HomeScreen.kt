@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.constraintlayout.compose.Dimension
 import androidx.compose.runtime.Composable
@@ -44,13 +45,36 @@ import com.example.expensetrackerv1.R
 import com.example.expensetrackerv1.base.HomeNavigationEvent
 import com.example.expensetrackerv1.base.NavigationEvent
 import com.example.expensetrackerv1.data.model.ExpenseEntity
+import com.example.expensetrackerv1.ui.theme.DarkGreen
 import com.example.expensetrackerv1.ui.theme.Zinc
 import com.example.expensetrackerv1.widget.ExpenseTextView
-import com.example.expensetrackerv1.ui.theme.Green
 import com.example.expensetrackerv1.ui.theme.LightGrey
-import com.example.expensetrackerv1.ui.theme.Red
 import com.example.expensetrackerv1.ui.theme.Typography
 import com.example.expensetrackerv1.utils.Utils
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
+import androidx.compose.ui.graphics.vector.ImageVector
+
+import androidx.compose.foundation.layout.fillMaxHeight
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.ui.unit.Dp
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
 @Composable
@@ -105,11 +129,7 @@ fun HomeScreen(navController: NavController){
                         color = Color.White
                     )
                 }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_notification),
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
+
             }
             val state = viewModel.expenses.collectAsState(initial = emptyList())
             val expense = viewModel.getTotalExpense(state.value)
@@ -123,6 +143,25 @@ fun HomeScreen(navController: NavController){
                 },
                 balance = balance, income = income, expense = expense
             )
+
+            if (state.value.isEmpty()) {
+                // Show image if state.value is empty
+                Image(
+                    painter = painterResource(id = R.drawable.no_data_png), // Replace with your empty list image
+                    contentDescription = "No Data",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(330.dp)
+                        .padding(bottom = 50.dp)
+                        .constrainAs(list) {
+                            top.linkTo(card.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                        }
+                )
+            } else {
+
             TransactionList(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,8 +173,11 @@ fun HomeScreen(navController: NavController){
                         height = Dimension.fillToConstraints
                     }, list = state.value, onSeeAllClicked = {
                     viewModel.onEvent(HomeUiEvent.OnSeeAllClicked)
-                }
+                },
+                navController = navController
             )
+
+            }
 
             Box(
                 modifier = Modifier
@@ -155,77 +197,6 @@ fun HomeScreen(navController: NavController){
     }
 }
 
-
-@Composable
-fun MultiFloatingActionButton(
-    modifier: Modifier,
-    onAddExpenseClicked: () -> Unit,
-    onAddIncomeClicked: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Secondary FABs
-            AnimatedVisibility(visible = expanded) {
-                Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(16.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(color = Zinc, shape = RoundedCornerShape(12.dp))
-                            .clickable {
-                                onAddIncomeClicked.invoke()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_income),
-                            contentDescription = "Add Income",
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(color = Zinc, shape = RoundedCornerShape(12.dp))
-                            .clickable {
-                                onAddExpenseClicked.invoke()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_expense),
-                            contentDescription = "Add Expense",
-                            tint = Color.White
-                        )
-                    }
-                }
-            }
-            // Main FAB
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(color = Zinc)
-                    .clickable {
-                        expanded = !expanded
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_addbutton),
-                    contentDescription = "small floating action button",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun CardItem(
@@ -257,11 +228,7 @@ fun CardItem(
                     text = balance, style = Typography.headlineLarge, color = Color.White,
                 )
             }
-            Image(
-                painter = painterResource(id = R.drawable.dots_menu),
-                contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
+
         }
 
         Box(
@@ -291,11 +258,115 @@ fun CardItem(
 
 
 @Composable
+fun ActionIcon(
+    onClick: () -> Unit,
+    backgroundColor: Color,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+    tint: Color = Color.White,
+    padding: Dp = 16.dp
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clip(RoundedCornerShape(50)) // Rounded button
+            .background(backgroundColor)
+            .clickable(
+                onClick = onClick,
+            )
+            .padding(padding)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint
+        )
+    }
+}
+
+@Composable
+fun SwippableItemWithActions(
+    isRevealed: Boolean,
+    actions: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    var contextMenuWidth by remember {
+        mutableFloatStateOf(0f)
+    }
+    val offset = remember {
+        Animatable(initialValue = 0f)
+    }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = isRevealed, contextMenuWidth) {
+        if(isRevealed) {
+            offset.animateTo(contextMenuWidth)
+        } else {
+            offset.animateTo(0f)
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
+        Row(
+            modifier = Modifier
+                .onSizeChanged {
+                    contextMenuWidth = it.width.toFloat()
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            actions()
+        }
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset { IntOffset(offset.value.roundToInt(), 0) }
+                .pointerInput(contextMenuWidth) {
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { _, dragAmount ->
+                            scope.launch {
+                                val newOffset = (offset.value + dragAmount)
+                                    .coerceIn(0f, contextMenuWidth)
+                                offset.snapTo(newOffset)
+                            }
+                        },
+                        onDragEnd = {
+                            when {
+                                offset.value >= contextMenuWidth / 2f -> {
+                                    scope.launch {
+                                        offset.animateTo(contextMenuWidth)
+                                    }
+                                }
+
+                                else -> {
+                                    scope.launch {
+                                        offset.animateTo(0f)
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+        ) {
+            content()
+        }
+    }
+}
+
+
+
+@Composable
 fun TransactionList(
     modifier: Modifier,
     list: List<ExpenseEntity>,
     title: String = "Recent Transactions",
-    onSeeAllClicked: () -> Unit
+    onSeeAllClicked: () -> Unit,
+    navController: NavController
 ) {
     LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
         item {
@@ -324,15 +395,41 @@ fun TransactionList(
             key = { item -> item.id ?: 0 }) { item ->
             val icon = Utils.getItemIcon(item)
             val amount = if (item.type == "Income") item.amount else item.amount * -1
+            LocalContext.current
 
-            TransactionItem(
-                title = item.title,
-                amount = Utils.formatCurrency(amount),
-                icon = icon,
-                date = Utils.formatStringDateToMonthDayYear(item.date),
-                color = if (item.type == "Income") Green else Red,
-                Modifier
-            )
+            SwippableItemWithActions(
+                isRevealed = false,
+                actions = {
+                    ActionIcon(
+                        onClick = {
+                            val json = Json.encodeToString(item)
+                            navController.navigate("/delete_income_expense?expenseEntity=$json")
+                        },
+                        backgroundColor = Zinc,
+                        icon = Icons.Default.Delete,
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                    ActionIcon(
+                        onClick = {
+                            val json = Json.encodeToString(item)
+                            navController.navigate("/update_income_expense?expenseEntity=$json")
+                        },
+                        backgroundColor = Zinc,
+                        icon = Icons.Default.Edit,
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                },
+            ) {
+                TransactionItem(
+                    title = item.title,
+                    amount = Utils.formatCurrency(amount),
+                    icon = icon,
+                    date = Utils.formatStringDateToMonthDayYear(item.date),
+                    color = DarkGreen,
+                    Modifier
+                )
+
+            }
         }
     }
 }
@@ -355,8 +452,8 @@ fun TransactionItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = icon),
-                contentDescription = null,
-                modifier = Modifier.size(51.dp)
+                contentDescription = title,
+                modifier = Modifier.size(51.dp).padding(6.dp)
             )
             Spacer(modifier = Modifier.size(8.dp))
             Column {
@@ -375,11 +472,105 @@ fun TransactionItem(
     }
 }
 
+
+@Composable
+fun MultiFloatingActionButton(
+    modifier: Modifier,
+    onAddExpenseClicked: () -> Unit,
+    onAddIncomeClicked: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Secondary FABs
+            AnimatedVisibility(visible = expanded) {
+                Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(16.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 150.dp, height = 48.dp)
+                            .background(color = Zinc, shape = RoundedCornerShape(12.dp))
+                            .clickable {
+                                onAddIncomeClicked.invoke()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_income),
+                                contentDescription = "Add Income",
+                                tint = Color.White
+                            )
+                            Text(
+                                text = "Add Income",
+                                color = Color.White,
+                                style = Typography.titleMedium // Adjust style as needed
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(width = 150.dp, height = 48.dp)
+                            .background(color = Zinc, shape = RoundedCornerShape(12.dp))
+                            .clickable {
+                                onAddExpenseClicked.invoke()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+
+                            Icon(
+                                painter = painterResource(R.drawable.ic_expense),
+                                contentDescription = "Add Expense",
+                                tint = Color.White
+                            )
+                            Text(
+                                text = "Add Expense",
+                                color = Color.White,
+                                style = Typography.titleMedium // Adjust style as needed
+                            )
+                        }
+                    }
+                }
+            }
+            // Main FAB
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(color = Zinc)
+                    .clickable {
+                        expanded = !expanded
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_addbutton),
+                    contentDescription = "small floating action button",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+
+        }
+    }
+}
+
 @Composable
 fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
     Column(modifier = modifier) {
         Row {
-
             Image(
                 painter = painterResource(id = image),
                 contentDescription = null,
@@ -392,9 +583,10 @@ fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(rememberNavController())
 }
+
+

@@ -20,11 +20,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.expensetrackerv1.feature.add_expense.AddExpense
+import com.example.expensetrackerv1.feature.add_expense.EditExpense
 import com.example.expensetrackerv1.feature.home.HomeScreen
 import com.example.expensetrackerv1.feature.stats.StatsScreen
 import com.example.expensetrackerv1.feature.transactionlist.TransactionListScreen
 import com.example.expensetrackerv1.ui.theme.Zinc
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.expensetrackerv1.data.model.ExpenseEntity
+import kotlinx.serialization.json.Json
 
 @Composable
 fun NavHostScreen() {
@@ -56,11 +59,39 @@ fun NavHostScreen() {
 
             composable(route = "/add_income") {
                 bottomBarVisibility = false
-                AddExpense(navController, isIncome = true)
+                EditExpense(navController = navController, operation = "Add",
+                    isIncome = true)
             }
+
             composable(route = "/add_exp") {
                 bottomBarVisibility = false
-                AddExpense(navController, isIncome = false)
+                EditExpense(navController = navController, operation = "Add",
+                    isIncome = false)
+            }
+
+            composable(route = "/update_income_expense?expenseEntity={expenseEntity}") { backStackEntry ->
+                val expenseEntityJson = backStackEntry.arguments?.getString("expenseEntity") ?: ""
+                val expenseEntity = if (expenseEntityJson.isNotEmpty()) {
+                    Json.decodeFromString<ExpenseEntity>(expenseEntityJson)
+                } else {
+                    null
+                }
+                if (expenseEntity != null) {
+                    EditExpense(navController = navController, operation = "Update",isIncome = expenseEntity.type == "Income", expenseEntity = expenseEntity)
+                }
+            }
+
+            composable(route = "/delete_income_expense?expenseEntity={expenseEntity}") { backStackEntry ->
+                val expenseEntityJson = backStackEntry.arguments?.getString("expenseEntity") ?: ""
+                val expenseEntity = if (expenseEntityJson.isNotEmpty()) {
+                    Json.decodeFromString<ExpenseEntity>(expenseEntityJson)
+                } else {
+                    null
+                }
+
+                if (expenseEntity != null) {
+                    EditExpense(navController = navController, operation = "Delete", isIncome = expenseEntity.type == "Income" , expenseEntity = expenseEntity)
+                }
             }
 
             composable(route = "/stats") {
@@ -108,6 +139,7 @@ fun NavigationBottomBar(
                 },
                 alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.White,
                     selectedTextColor = Zinc,
                     selectedIconColor = Zinc,
                     unselectedTextColor = Color.Gray,
@@ -118,3 +150,8 @@ fun NavigationBottomBar(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun NavHostScreenPreview() {
+    NavHostScreen()
+}
