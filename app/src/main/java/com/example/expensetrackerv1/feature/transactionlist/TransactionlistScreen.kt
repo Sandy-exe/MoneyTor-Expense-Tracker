@@ -39,6 +39,8 @@ import com.example.expensetrackerv1.feature.home.HomeViewModel
 import com.example.expensetrackerv1.feature.home.HomeViewModelFactory
 import com.example.expensetrackerv1.ui.theme.DarkGreen
 import com.example.expensetrackerv1.widget.ExpenseTextView
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Composable
 fun TransactionListScreen(navController: NavController) {
@@ -64,7 +66,8 @@ fun TransactionListScreen(navController: NavController) {
         }
 
         // Get the current date in milliseconds
-        val currentDateInMillis = System.currentTimeMillis()
+
+        val currentDateInMillis = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         // Apply date range filter logic
         val dateRangeStartInMillis = when (dateRange) {
@@ -78,6 +81,7 @@ fun TransactionListScreen(navController: NavController) {
 
         // If the date range is valid, apply the filter
         if (dateRangeStartInMillis != null && transactionDateInMillis != null) {
+
             transactionDateInMillis >= dateRangeStartInMillis && transactionDateInMillis <= currentDateInMillis
         } else {
             true // If no date range filter is selected or invalid, include the transaction
@@ -157,7 +161,7 @@ fun TransactionListScreen(navController: NavController) {
                                 listOfItems = listOf( "Yesterday", "Today", "Last 30 Days", "Last 90 Days", "Last Year"),
                                 onItemSelected = { selected ->
                                     dateRange = selected
-                                    menuExpanded = false // Close menu after selection
+                                    menuExpanded = true// Close menu after selection
                                 },
                                 onSelected = "Select Time"
                             )

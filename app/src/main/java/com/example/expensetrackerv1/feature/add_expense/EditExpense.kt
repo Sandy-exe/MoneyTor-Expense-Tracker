@@ -167,6 +167,23 @@ fun DataForm(
             .verticalScroll(rememberScrollState())
     ) {
         TitleComponent(title = "name")
+        if (operation == "Delete")
+            OutlinedTextField(
+                value = name.value,
+                enabled = false,
+                onValueChange = {}, textStyle = TextStyle(color = Color.Black),
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                placeholder = { ExpenseTextView(text = "Enter amount") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    disabledBorderColor = Color.Black, disabledTextColor = Color.Black,
+                    disabledPlaceholderColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                )
+            )
+        else
         ExpenseDropDown(
             if (isIncome) listOf(
                 "Paypal",
@@ -331,15 +348,13 @@ fun ExpenseDropDown(listOfItems: List<String>, onItemSelected: (item: String) ->
         mutableStateOf(onSelected)
     }
 
-
-    ExposedDropdownMenuBox(expanded =  expanded.value, onExpandedChange = { expanded.value = if (onSelected == "Select Item") it else false }) {
+    ExposedDropdownMenuBox(expanded =  expanded.value, onExpandedChange = { expanded.value = it }) {
         OutlinedTextField(
             value = selectedItem.value,
-            enabled = onSelected == "Select Item",
             onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type= MenuAnchorType.PrimaryEditable, enabled=true),
+                .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true),
             textStyle = TextStyle(fontFamily = InterFontFamily, color = Color.Black),
             readOnly = true,
             trailingIcon = {

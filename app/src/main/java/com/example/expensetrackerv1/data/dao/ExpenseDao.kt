@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.expensetrackerv1.data.model.ExpenseEntity
 import com.example.expensetrackerv1.data.model.ExpenseSummary
@@ -25,9 +26,22 @@ interface ExpenseDao {
     @Insert
     suspend fun insertExpense(expenseEntity: ExpenseEntity)
 
+    @Insert
+    suspend fun insertExpenses(expenses: List<ExpenseEntity>)
+
     @Delete
     suspend fun deleteExpense(expenseEntity: ExpenseEntity)
 
     @Update
     suspend fun updateExpense(expenseEntity: ExpenseEntity)
+
+    @Query("DELETE FROM expense_table")
+    suspend fun deleteAllExpenses()
+
+    @Transaction
+    suspend fun replaceAll(expenses: List<ExpenseEntity>) {
+        deleteAllExpenses()
+        insertExpenses(expenses)
+    }
+
 }
