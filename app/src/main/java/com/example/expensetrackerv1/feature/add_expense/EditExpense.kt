@@ -199,7 +199,7 @@ fun DataForm(
             onItemSelected = {
                 name.value = it
             },
-            onSelected = name.value ?: "Select Item" )
+            onSelected = if (name.value == "" ) "Select Item" else name.value )
         Spacer(modifier = Modifier.size(24.dp))
         TitleComponent("amount")
         val rupeeSymbol = stringResource(R.string.Rs)
@@ -245,12 +245,12 @@ fun DataForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { dateDialogVisibility.value = operation != "Delete" },
-            enabled = operation != "Delete",
+            enabled = false,
             colors = OutlinedTextFieldDefaults.colors(
                 disabledBorderColor = Color.Black, disabledTextColor = Color.Black,
                 disabledPlaceholderColor = Color.Black,
             ),
-            placeholder = { ExpenseTextView(text = (date.value?: "Select date").toString()) })
+            placeholder = { ExpenseTextView(text = (if (date.value == 0L) "Select date" else date.value).toString()) })
         Spacer(modifier = Modifier.size(24.dp))
         Button(
             onClick = {
@@ -372,13 +372,7 @@ fun ExpenseDropDown(listOfItems: List<String>, onItemSelected: (item: String) ->
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    EditExpense(rememberNavController(),operation = "Update",
-        isIncome = false,ExpenseEntity(
-            id = 132,
-            title = "Freelance",
-            amount= 400.0,
-            date= "01/10/2024",
-            type= "Income",
-            category= "Test"
-        ))
+    EditExpense(rememberNavController(),operation = "Add",
+        isIncome = false,
+        expenseEntity = null)
 }

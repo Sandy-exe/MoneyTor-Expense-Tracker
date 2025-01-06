@@ -270,7 +270,7 @@ fun ActionIcon(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .clip(RoundedCornerShape(50)) // Rounded button
+            .clip(RoundedCornerShape(10)) // Rounded button
             .background(backgroundColor)
             .clickable(
                 onClick = onClick,
@@ -287,22 +287,24 @@ fun ActionIcon(
 
 @Composable
 fun SwippableItemWithActions(
-    isRevealed: Boolean,
-    actions: @Composable RowScope.() -> Unit,
+    isRevealedLeft: Boolean,
+    isRevealedRight: Boolean,
+    beforeContentActions: @Composable RowScope.() -> Unit = {}, // Actions for left swipe
+    afterContentActions: @Composable RowScope.() -> Unit = {},  // Actions for right swipe
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    var contextMenuWidth by remember {
-        mutableFloatStateOf(0f)
-    }
-    val offset = remember {
-        Animatable(initialValue = 0f)
-    }
+    var beforeActionsWidth by remember { mutableFloatStateOf(0f) }
+    var afterActionsWidth by remember { mutableFloatStateOf(0f) }
+    val offset = remember { Animatable(0f) } // 0: content, +ve: right swipe, -ve: left swipe
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = isRevealed, contextMenuWidth) {
-        if(isRevealed) {
-            offset.animateTo(contextMenuWidth)
+    // Sync offset with the revealed state
+    LaunchedEffect(key1 = isRevealedLeft, key2 = isRevealedRight) {
+        if (isRevealedLeft) {
+            offset.animateTo(-beforeActionsWidth)
+        } else if (isRevealedRight) {
+            offset.animateTo(afterActionsWidth)
         } else {
             offset.animateTo(0f)
         }
@@ -313,38 +315,68 @@ fun SwippableItemWithActions(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
     ) {
+        // Actions behind the content
         Row(
             modifier = Modifier
+                .fillMaxSize()
                 .onSizeChanged {
-                    contextMenuWidth = it.width.toFloat()
+                    beforeActionsWidth = it.width.toFloat() / 5 // Left swipe area width
+                    afterActionsWidth = it.width.toFloat() / 5 // Right swipe area width
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            actions()
+
+            // Left swipe actions (before content)
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .height(IntrinsicSize.Min),
+
+                contentAlignment = Alignment.Center
+            ) {
+
+                Row(){beforeContentActions()}
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Right swipe actions (after content)
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .height(IntrinsicSize.Min),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Row(){afterContentActions()}
+
+            }
         }
+
+        // Foreground content
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .offset { IntOffset(offset.value.roundToInt(), 0) }
-                .pointerInput(contextMenuWidth) {
+                .pointerInput(Unit) {
                     detectHorizontalDragGestures(
                         onHorizontalDrag = { _, dragAmount ->
                             scope.launch {
                                 val newOffset = (offset.value + dragAmount)
-                                    .coerceIn(0f, contextMenuWidth)
+                                    .coerceIn(-beforeActionsWidth, afterActionsWidth)
                                 offset.snapTo(newOffset)
                             }
                         },
                         onDragEnd = {
-                            when {
-                                offset.value >= contextMenuWidth / 2f -> {
-                                    scope.launch {
-                                        offset.animateTo(contextMenuWidth)
+                            scope.launch {
+                                when {
+                                    offset.value <= -beforeActionsWidth / 4 -> {
+                                        offset.animateTo(-beforeActionsWidth)
                                     }
-                                }
-
-                                else -> {
-                                    scope.launch {
+                                    offset.value >= afterActionsWidth / 4 -> {
+                                        offset.animateTo(afterActionsWidth)
+                                    }
+                                    else -> {
                                         offset.animateTo(0f)
                                     }
                                 }
@@ -357,6 +389,7 @@ fun SwippableItemWithActions(
         }
     }
 }
+
 
 
 
@@ -398,17 +431,10 @@ fun TransactionList(
             LocalContext.current
 
             SwippableItemWithActions(
-                isRevealed = false,
-                actions = {
-                    ActionIcon(
-                        onClick = {
-                            val json = Json.encodeToString(item)
-                            navController.navigate("/delete_income_expense?expenseEntity=$json")
-                        },
-                        backgroundColor = Zinc,
-                        icon = Icons.Default.Delete,
-                        modifier = Modifier.fillMaxHeight()
-                    )
+                isRevealedLeft = false,
+                isRevealedRight = false,
+
+                {
                     ActionIcon(
                         onClick = {
                             val json = Json.encodeToString(item)
@@ -418,7 +444,20 @@ fun TransactionList(
                         icon = Icons.Default.Edit,
                         modifier = Modifier.fillMaxHeight()
                     )
+
                 },
+               {
+                   ActionIcon(
+                       onClick = {
+                           val json = Json.encodeToString(item)
+                           navController.navigate("/delete_income_expense?expenseEntity=$json")
+                       },
+                       backgroundColor = Zinc,
+                       icon = Icons.Default.Delete,
+                       modifier = Modifier.fillMaxHeight()
+                   )
+
+                }
             ) {
                 TransactionItem(
                     title = item.title,
@@ -428,8 +467,9 @@ fun TransactionList(
                     color = DarkGreen,
                     Modifier
                 )
-
             }
+
+
         }
     }
 }
@@ -446,6 +486,7 @@ fun TransactionItem(
 
     Box(
         modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
