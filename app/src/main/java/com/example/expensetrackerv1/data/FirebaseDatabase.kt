@@ -1,31 +1,49 @@
 package com.example.expensetrackerv1.data
 
+import com.example.expensetrackerv1.data.dao.ExpenseDao
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import com.example.expensetrackerv1.data.model.ExpenseEntity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.util.UUID
+import android.content.Context
+import android.content.Intent
+import com.example.expensetrackerv1.notification.SyncingNotificationReceiver
 
 class FirebaseDatabase {
 
     private val firestore = Firebase.firestore
 
-    suspend fun syncFirebaseData(database: ExpenseDatabase) {
-        val expenseDao = database.expenseDao()
+    private fun sendSyncBroadcast(context: Context, message: String, title: String = "Syncing with Firebase") {
+        val intent = Intent(context, SyncingNotificationReceiver::class.java).apply {
+            putExtra("Text", message,)  // Add the message to the Intent
+            putExtra("title", title,)
+        }
+        context.sendBroadcast(intent)  // Send the broadcast
+    }
 
+    suspend fun syncFirebaseData(expenseDao: ExpenseDao,context: Context) {
         try {
+            sendSyncBroadcast(context, "Started Syncing",)
             // Fetch all data from Firebase
             val snapshot = firestore.collection("expenses").get().await()
             val firebaseExpenses = snapshot.documents.mapNotNull { doc ->
                 doc.toObject(ExpenseEntity::class.java)
             }
 
+            println(firebaseExpenses)
+
             // Fetch all local expenses from Room database
             val localExpenses = expenseDao.getAllExpense().first()
 
+            sendSyncBroadcast(context, "All Data Fetched...")
+            println("All Data Fetched...")
+
             // Combine local and Firebase expenses
             val mergedExpenses = unionExpenses(localExpenses, firebaseExpenses)
+
+            sendSyncBroadcast(context, "Union Performed...")
+            println("Union Performed...")
 
             // If there is any new data, update both Firebase and Room database
             if (mergedExpenses.isNotEmpty()) {
@@ -36,7 +54,11 @@ class FirebaseDatabase {
                 expenseDao.replaceAllExpenses(mergedExpenses)
             }
 
+            sendSyncBroadcast(context, "Sync Complete")
+            println("Sync Complete")
+
         } catch (e: Exception) {
+            sendSyncBroadcast(context, "Un Expected Error")
             println(e)
             e.printStackTrace() // Log errors, e.g., no internet connection
         }
@@ -59,24 +81,6 @@ class FirebaseDatabase {
         }
 
         return mergedMap.values.toList()
-    }
-
-    // Function to update Firebase with the merged data
-    private fun updateFirebaseExpenses(mergedExpenses: List<ExpenseEntity>) {
-        val batch = firestore.batch()
-
-        mergedExpenses.forEach { expense ->
-            val expenseRef = firestore.collection("expenses").document(expense.id?.toString() ?: UUID.randomUUID().toString())
-            batch.set(expenseRef, expense)
-        }
-
-        batch.commit().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                println("Firebase sync successful")
-            } else {
-                task.exception?.printStackTrace()
-            }
-        }
     }
 
     // Create function
@@ -118,6 +122,34 @@ class FirebaseDatabase {
         } catch (e: Exception) {
             println(e)
             null
+        }
+    }
+
+    // Function to update Firebase with the merged data
+    private suspend fun updateFirebaseExpenses(mergedExpenses: List<ExpenseEntity>) {
+        mergedExpenses.forEach { expense ->
+            try {
+                // Fetch the document with the matching id
+                val snapshot = firestore.collection("expenses")
+                    .whereEqualTo("id", expense.id)
+                    .get()
+                    .await()
+
+                // Check if the document exists and update it
+                if (snapshot.documents.isNotEmpty()) {
+                    val documentId = snapshot.documents[0].id
+                    firestore.collection("expenses").document(documentId)
+                        .set(expense)
+                        .await()
+                } else {
+                    // If document doesn't exist, create a new one with a new ID
+                    val newExpenseRef = firestore.collection("expenses").document()
+                    newExpenseRef.set(expense).await()
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

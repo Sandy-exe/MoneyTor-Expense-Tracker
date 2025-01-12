@@ -72,6 +72,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.unit.Dp
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -135,13 +137,21 @@ fun HomeScreen(navController: NavController){
             val expense = viewModel.getTotalExpense(state.value)
             val income = viewModel.getTotalIncome(state.value)
             val balance = viewModel.getBalance(state.value)
+            val coroutineScope = rememberCoroutineScope()
             CardItem(
                 modifier = Modifier.constrainAs(card) {
                     top.linkTo(nameRow.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-                balance = balance, income = income, expense = expense
+                balance = balance, income = income, expense = expense,
+                firebaseSync = {
+
+                    coroutineScope.launch {
+                        println("Syncing started!")
+                        viewModel.firebaseSync() // Call the actual sync function here
+                    }
+                }
             )
 
             if (state.value.isEmpty()) {
@@ -201,8 +211,11 @@ fun HomeScreen(navController: NavController){
 @Composable
 fun CardItem(
     modifier: Modifier,
-    balance: String, income: String, expense: String
+    balance: String, income: String, expense: String,
+    firebaseSync: () -> Unit,
 ) {
+    val menuExpanded = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -228,6 +241,40 @@ fun CardItem(
                     text = balance, style = Typography.headlineLarge, color = Color.White,
                 )
             }
+            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                    // Image that toggles the dropdown menu
+                    Image(
+                        painter = painterResource(id = R.drawable.dots_menu),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clickable {
+                                // Toggle the dropdown menu visibility
+                                menuExpanded.value = !menuExpanded.value
+
+                            }
+                    )
+
+                    // Dropdown menu
+                    DropdownMenu(
+                        expanded = menuExpanded.value,
+                        onDismissRequest = { menuExpanded.value = false }, // Close menu if clicked outside
+                    ) {
+                        DropdownMenuItem(
+                            text = { ExpenseTextView(text = "Sync with FireStore",style = Typography.titleSmall,) },
+                            onClick = {
+                                menuExpanded.value = false
+
+                                //Sync Function
+                                    firebaseSync() // Call suspend function inside coroutine
+                                    println("Sync triggered!")
+
+
+
+                            },
+                        )
+                    }
+                }
 
         }
 

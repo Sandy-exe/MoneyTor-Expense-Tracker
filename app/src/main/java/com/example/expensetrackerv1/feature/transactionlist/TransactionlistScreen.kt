@@ -114,8 +114,6 @@ fun TransactionListScreen(navController: NavController) {
                         .padding(16.dp)
                         .align(Alignment.Center)
                 )
-
-                // Three Dots Menu
                 Image(
                     painter = painterResource(id = R.drawable.ic_filter),
                     contentDescription = null,

@@ -12,4 +12,7 @@ data class ExpenseEntity(
     val amount: Double,
     val date: String,
     val type: String,
-)
+){
+    // No-argument constructor needed for Firestore deserialization
+    constructor() : this(id = null, title = "", amount = 0.0, date = "", type = "")
+}
