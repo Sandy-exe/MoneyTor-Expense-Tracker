@@ -63,6 +63,7 @@ import com.example.expensetrackerv1.ui.theme.InterFontFamily
 import com.example.expensetrackerv1.ui.theme.LightGrey
 import com.example.expensetrackerv1.ui.theme.Typography
 import com.example.expensetrackerv1.ui.theme.Zinc
+import com.example.expensetrackerv1.utils.connectivity.NetworkUtils
 import com.example.expensetrackerv1.widget.ExpenseTextView
 
 @Composable
@@ -124,13 +125,16 @@ fun EditExpense(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, onAddExpenseClick = {
-                    viewModel.onEvent(AddExpenseUiEvent.OnAddExpenseClicked(it))
+                        model, isOnline ->
+                    viewModel.onEvent(AddExpenseUiEvent.OnAddExpenseClicked(model, isOnline))
                 },
                     onUpdateExpenseClick = {
-                        viewModel.onEvent(AddExpenseUiEvent.OnUpdateExpenseClicked(it))
+                        model, isOnline ->
+                        viewModel.onEvent(AddExpenseUiEvent.OnUpdateExpenseClicked(model, isOnline))
                     },
                     onDeletedExpenseClick = {
-                        viewModel.onEvent(AddExpenseUiEvent.OnDeleteExpenseClicked(it))
+                        model, isOnline ->
+                        viewModel.onEvent(AddExpenseUiEvent.OnDeleteExpenseClicked(model,isOnline))
                     }
                     ,isIncome,operation,expenseEntity)
             }
@@ -141,9 +145,9 @@ fun EditExpense(
 @Composable
 fun DataForm(
     modifier: Modifier,
-    onAddExpenseClick: (model: ExpenseEntity) -> Unit,
-    onUpdateExpenseClick: (model: ExpenseEntity) -> Unit,
-    onDeletedExpenseClick: (model: ExpenseEntity) -> Unit,
+    onAddExpenseClick: (model: ExpenseEntity, isOnline: Boolean) -> Unit,
+    onUpdateExpenseClick: (model: ExpenseEntity, isOnline: Boolean) -> Unit,
+    onDeletedExpenseClick: (model: ExpenseEntity, isOnline: Boolean) -> Unit,
     isIncome: Boolean,
     operation: String = "Add",
     expenseEntity: ExpenseEntity?
@@ -153,6 +157,8 @@ fun DataForm(
     val date = remember { mutableLongStateOf(expenseEntity?.let { Utils.convertDateToMillis(it.date) } ?: 0L) }
     val dateDialogVisibility = remember { mutableStateOf(false) }
     val type = remember { mutableStateOf(expenseEntity?.type ?: if (isIncome) "Income" else "Expense") }
+
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -167,7 +173,8 @@ fun DataForm(
             .verticalScroll(rememberScrollState())
     ) {
         TitleComponent(title = "name")
-        if (operation == "Delete")
+
+        if (operation == "Delete") {
             OutlinedTextField(
                 value = name.value,
                 enabled = false,
@@ -183,40 +190,43 @@ fun DataForm(
                     focusedTextColor = Color.Black,
                 )
             )
-        else
-        ExpenseDropDown(
-            if (isIncome) listOf(
-                "Paypal",
-                "Salary",
-                "Freelance",
-                "Investments",
-                "Bonus",
-                "Rental Income",
-                "Other Income"
-            ) else listOf(
-                "Grocery",
-                "Netflix",
-                "Rent",
-                "Paypal",
-                "Starbucks",
-                "Shopping",
-                "Transport",
-                "Utilities",
-                "Dining Out",
-                "Entertainment",
-                "Healthcare",
-                "Insurance",
-                "Subscriptions",
-                "Education",
-                "Debt Payments",
-                "Gifts & Donations",
-                "Travel",
-                "Other Expenses"
-            ),
-            onItemSelected = {
-                name.value = it
-            },
-            onSelected = if (name.value == "" ) "Select Item" else name.value )
+        }
+        else {
+            ExpenseDropDown(
+                if (isIncome) listOf(
+                    "Paypal",
+                    "Salary",
+                    "Freelance",
+                    "Investments",
+                    "Bonus",
+                    "Rental Income",
+                    "Other Income"
+                ) else listOf(
+                    "Grocery",
+                    "Netflix",
+                    "Rent",
+                    "Paypal",
+                    "Starbucks",
+                    "Shopping",
+                    "Transport",
+                    "Utilities",
+                    "Dining Out",
+                    "Entertainment",
+                    "Healthcare",
+                    "Insurance",
+                    "Subscriptions",
+                    "Education",
+                    "Debt Payments",
+                    "Gifts & Donations",
+                    "Travel",
+                    "Other Expenses"
+                ),
+                onItemSelected = {
+                    name.value = it
+                },
+                onSelected = if (name.value == "") "Select Item" else name.value
+            )
+        }
         Spacer(modifier = Modifier.size(24.dp))
         TitleComponent("amount")
         val rupeeSymbol = stringResource(R.string.Rs)
@@ -276,13 +286,16 @@ fun DataForm(
                     name.value,
                     amount.value.toDoubleOrNull() ?: 0.0,
                     Utils.formatDateToHumanReadableForm(date.longValue),
-                    type.value,
-                    "Test"
+                    type.value,    
                 )
+
+                val isInternetAvailable = NetworkUtils().checkForInternet(context)
+                println("Is internet available: $isInternetAvailable")
+
                 when (operation) {
-                    "Add" -> onAddExpenseClick(model)
-                    "Update" -> onUpdateExpenseClick(model)
-                    "Delete" -> onDeletedExpenseClick(model)
+                    "Add" -> onAddExpenseClick(model,isInternetAvailable)
+                    "Update" -> onUpdateExpenseClick(model,isInternetAvailable)
+                    "Delete" -> onDeletedExpenseClick(model,isInternetAvailable)
                 }
 
             }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp) , colors = ButtonDefaults.buttonColors(

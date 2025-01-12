@@ -8,6 +8,7 @@ import com.example.expensetrackerv1.base.BaseViewModel
 import com.example.expensetrackerv1.base.HomeNavigationEvent
 import com.example.expensetrackerv1.base.UiEvent
 import com.example.expensetrackerv1.data.ExpenseDatabase
+import com.example.expensetrackerv1.data.FirebaseDatabase
 import com.example.expensetrackerv1.utils.Utils
 import com.example.expensetrackerv1.data.dao.ExpenseDao
 import com.example.expensetrackerv1.data.model.ExpenseEntity

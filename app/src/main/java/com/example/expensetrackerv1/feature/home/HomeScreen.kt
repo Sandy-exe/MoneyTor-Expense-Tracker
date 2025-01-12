@@ -457,7 +457,8 @@ fun TransactionList(
                        modifier = Modifier.fillMaxHeight()
                    )
 
-                }
+                },
+                modifier = Modifier.padding(vertical = 4.dp)
             ) {
                 TransactionItem(
                     title = item.title,
