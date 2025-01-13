@@ -89,11 +89,6 @@ Feel free to check out these images to understand the app layout and design bett
 
 Check out the demo video of **MONEYtor** showing its key features and functionalities:
 
-<video width="640" height="360" controls>
-  <source src="Media/Rec.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
 
 ## Thanks
 
