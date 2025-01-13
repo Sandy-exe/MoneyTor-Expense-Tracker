@@ -95,6 +95,10 @@ https://github.com/user-attachments/assets/ca675bc3-96b4-4398-b5ae-93965bea871a
 
 2) Firebase Manual Sync Option
 
+
+https://github.com/user-attachments/assets/ae87c0d7-f304-44ba-a688-9b075b835dac
+
+
 ## Thanks
 
 Special thanks to [**[Code with FK]**](https://www.youtube.com/watch?v=LfHkAUzup5E) for inspiring this project. Their tutorials and UI ideas provided a great foundation, and I further built upon them with my own concepts to handle online Firebase synchronization, background jobs, and notifications. Their insights played a significant role in shaping the core functionalities of this app. I highly recommend checking out their channel for more learning resources!
