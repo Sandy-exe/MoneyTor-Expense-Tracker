@@ -90,6 +90,10 @@ Feel free to check out these images to understand the app layout and design bett
 Check out the demo video of **MONEYtor** showing its key features and functionalities:
 
 
+https://github.com/user-attachments/assets/ca675bc3-96b4-4398-b5ae-93965bea871a
+
+
+
 ## Thanks
 
 Special thanks to [**[Code with FK]**](https://www.youtube.com/watch?v=LfHkAUzup5E) for inspiring this project. Their tutorials and UI ideas provided a great foundation, and I further built upon them with my own concepts to handle online Firebase synchronization, background jobs, and notifications. Their insights played a significant role in shaping the core functionalities of this app. I highly recommend checking out their channel for more learning resources!
