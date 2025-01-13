@@ -18,10 +18,10 @@
 
 - **Stats Screen**: The stats screen provides users with insights into their expenses and incomes, summarizing data to help manage their finances effectively.
 
-- **Expense Table & Pending Operations**: The app maintains two primary tables in the local SQLite database: `expense_table` and `expense_pending_table`. 
+- **Expense Table & Pending Operations**: The app maintains two primary tables in the local SQLite database: `expense_table` and `expense_pending_sync_table`. 
     - The `expense_table` stores the core expense records.
-    - The `expense_pending_table` stores pending operations (insert, update, delete) performed while offline. These operations are tracked and saved locally, ensuring that the user’s actions are not lost when the app is offline.
-    - Once the device is online, background jobs using **WorkManager** automatically sync the changes from the `expense_pending_table` to Firebase, updating the remote database with the offline operations.
+    - The `expense_pending_sync_table` stores pending operations (insert, update, delete) performed while offline. These operations are tracked and saved locally, ensuring that the user’s actions are not lost when the app is offline.
+    - Once the device is online, background jobs using **WorkManager** automatically sync the changes from the `expense_pending_sync_table` to Firebase, updating the remote database with the offline operations.
 
 ## Project Structure
 
@@ -73,16 +73,27 @@ To run this project locally, follow these steps:
 
 Here are some screenshots of the app to give you a visual idea of the key features:
 
-- **Home Screen**  
-  ![Home Screen](screenshots/home_screen.png)
-
-- **Add Expense Screen**  
-  ![Add Expense Screen](screenshots/add_expense_screen.png)
-
-- **Stats Screen**  
-  ![Stats Screen](screenshots/stats_screen.png)
+<div align="center">
+  <img src="Media/Empty_HomeScreeen.jpg" width="200" height="400"/>
+  <img src="Media/HomeScreen.jpg" width="200" height="400"/>
+  <img src="Media/Add_Expense.jpg" width="200" height="400"/>
+  <img src="Media/StatsScreen.jpg" width="200" height="400"/>
+  <img src="Media/SyncFireStore.jpg" width="200" height="400"/>
+  <img src="Media/Notification.jpg" width="200" height="400"/>
+  <img src="Media/FilterScreen.jpg" width="200" height="400"/>
+</div>
 
 Feel free to check out these images to understand the app layout and design better.
+
+## Video Demo
+
+Check out the demo video of **MONEYtor** showing its key features and functionalities:
+
+<video width="640" height="360" controls>
+  <source src="Media/Rec.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 ## Thanks
 
