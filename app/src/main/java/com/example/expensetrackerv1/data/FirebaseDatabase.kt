@@ -22,9 +22,9 @@ class FirebaseDatabase {
         context.sendBroadcast(intent)  // Send the broadcast
     }
 
-    suspend fun syncFirebaseData(expenseDao: ExpenseDao,context: Context) {
+    suspend fun syncFirebaseData(expenseDao: ExpenseDao,context: Context,title: String="Syncing with Firebase") {
         try {
-            sendSyncBroadcast(context, "Started Syncing",)
+            sendSyncBroadcast(context, "Started Syncing",title)
             // Fetch all data from Firebase
             val snapshot = firestore.collection("expenses").get().await()
             val firebaseExpenses = snapshot.documents.mapNotNull { doc ->

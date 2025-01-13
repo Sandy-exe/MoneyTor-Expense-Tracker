@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Entity(tableName = "expense_pending_sync_table")
 data class ExpensePendingSync(
-    @PrimaryKey(autoGenerate = true) val id: Int?,
+    @PrimaryKey(autoGenerate = true) val tableId: Int?,
+    val id: Int,
     val title: String,
     val amount: Double,
     val date: String,

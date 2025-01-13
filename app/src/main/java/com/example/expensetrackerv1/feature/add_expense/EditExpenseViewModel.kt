@@ -23,8 +23,10 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
 
     private val firestore = FirebaseDatabase()
     private suspend fun addToPendingSync(expenseEntity: ExpenseEntity, operation: String) {
+        println("ExpenseEntity : $expenseEntity")
         val expensePending = ExpensePendingSync(
-            id = expenseEntity.id,
+            tableId = null,
+            id = requireNotNull(expenseEntity.id),
             title = expenseEntity.title,
             amount = expenseEntity.amount,
             date = expenseEntity.date,
@@ -32,6 +34,7 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
             syncOperation = operation,
             syncStatus = false
         )
+
         expensePendingSyncDao.insertPendingSync(expensePending)
     }
 
@@ -63,7 +66,7 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
                 }
             } else {
                 // No internet connection, add to pending sync table
-                addToPendingSync(expenseEntity, "INSERT")
+                addToPendingSync(lastExpense, "INSERT")
                 println("No internet connection. Expense added to Pending Table.")
             }
 
@@ -80,6 +83,8 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
             dao.updateExpense(expenseEntity)
             println(expenseEntity.id)
             println("Expense updated successfully")
+
+            println(isOnline)
 
             if (isOnline) {
                 try {
@@ -101,9 +106,8 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
             } else {
                 // No internet connection, add to pending sync table
                 addToPendingSync(expenseEntity, "UPDATE")
-                println("No internet connection. Expense added to Pending Table.")
+                println("No internet connection. Expense updated to Pending Table.")
             }
-
             true
         } catch (ex: Throwable) {
             println("Error updating expense: ${ex.message}")

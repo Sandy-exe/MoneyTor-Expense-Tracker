@@ -76,4 +76,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.serialization.json)
 
+    //WORK MANAGER
+    implementation(libs.androidx.work.runtime.ktx)
+
 }

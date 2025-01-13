@@ -89,56 +89,15 @@ class HomeViewModel(database: ExpenseDatabase,context: Context) : BaseViewModel(
 
 @Suppress("UNCHECKED_CAST")
 class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
-    private val firestore = FirebaseDatabase()
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             val database = ExpenseDatabase.getInstance(context)
-
-            //here code the first time thing
-
-            // Perform first-time logic (Firebase sync)
-            if (isFirstRun()) {
-                // Run your first-time setup logic (like Firebase sync)
-                CoroutineScope(Dispatchers.IO).launch {
-                    runFirebaseSync(database, context)
-                }
-
-                // Mark sync as completed
-                markSyncAsCompleted()
-            }
-
-
-
-            return HomeViewModel(database,context) as T
+            return HomeViewModel(database, context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-
-    // Check if it's the first run
-    private fun isFirstRun(): Boolean {
-        return sharedPreferences.getBoolean("first_run", true)
-    }
-
-    // Mark sync as completed in SharedPreferences
-    private fun markSyncAsCompleted() {
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("first_run", false)
-        editor.apply()
-    }
-
-    // Function to run Firebase sync
-    private suspend fun runFirebaseSync(database: ExpenseDatabase, context: Context) {
-        // Run Firebase sync logic here
-
-        firestore.syncFirebaseData(database.expenseDao(),context)
-
-        // You can call your Firebase sync logic here, for example:
-        // firestore.syncFirebaseData(context)  (this is just a placeholder, implement actual sync logic)
-    }
 }
+
 
 sealed class HomeUiEvent : UiEvent() {
     data object OnAddExpenseClicked : HomeUiEvent()
