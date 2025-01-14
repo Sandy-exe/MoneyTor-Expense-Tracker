@@ -29,7 +29,6 @@ class SyncWorker(
         delay(5000)
             // Get all pending sync entries
             val pendingSyncs = dao.getAllPendingSync().first()
-            println(pendingSyncs)
             for (sync in pendingSyncs) {
                 when (sync.syncOperation) {
                     "INSERT" -> handleInsert(sync,firestore)
@@ -53,11 +52,12 @@ class SyncWorker(
             ExpenseEntity(
                 id = sync.id,
                 title = sync.title,
-                type = sync.title,
+                type = sync.type,
                 amount = sync.amount,
                 date = sync.date
             )
         )
+        println(sync)
         // Perform the insert operation
         println("Inserted ${sync.title}")
 
@@ -69,12 +69,12 @@ class SyncWorker(
             ExpenseEntity(
                 id = sync.id,
                 title = sync.title,
-                type = sync.title,
+                type = sync.type,
                 amount = sync.amount,
                 date = sync.date
             )
         )
-
+        println(sync)
         println("Updated ${sync.title}")
         // Add your logic here
     }
@@ -86,7 +86,7 @@ class SyncWorker(
                 it
             )
         }
-
+        println(sync)
         // Perform the delete operation
         println("Deleted ${sync.title}")
         // Add your logic here

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.expensetrackerv1.feature.add_expense
+package com.example.expensetrackerv1.screens.add_expense
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

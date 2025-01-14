@@ -72,27 +72,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             ExpenseTrackerAndroidTheme {
 
-                println("Application Start")
-
-
                 //Background Sync
                 LaunchedEffect(key1 = Unit) {
-                    val constraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
 
-
-                    val workRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-                        repeatInterval = 1,
-                        repeatIntervalTimeUnit = TimeUnit.MINUTES
-                    ).setConstraints(constraints)
-                        .setBackoffCriteria(
-                        backoffPolicy = BackoffPolicy.LINEAR,
-                        duration = Duration.ofSeconds(15)
-                    ).build()
 
                     val workManager = WorkManager.getInstance(applicationContext)
-                    workManager.enqueue(workRequest)
+
+
+                    val workTag = "SyncJOB"
+
+                    // Check if there's already a work request with the same tag
+                    val existingWork = workManager.getWorkInfosByTag(workTag).get()
+                    if (existingWork.isEmpty() || existingWork.none {
+                            it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING
+                        }) {
+                        val constraints = Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+
+                        val workRequest = PeriodicWorkRequestBuilder<SyncWorker>(
+                            repeatInterval = 15,
+                            repeatIntervalTimeUnit = TimeUnit.MINUTES // Use a reasonable interval
+                        ).addTag(workTag) // Add a unique tag to this work request
+                            .setConstraints(constraints)
+                            .setBackoffCriteria(
+                                backoffPolicy = BackoffPolicy.LINEAR,
+                                duration = Duration.ofSeconds(15)
+                            )
+                            .build()
+
+                        workManager.enqueue(workRequest)
+                    }
 
                 }
                 Surface(

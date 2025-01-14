@@ -1,7 +1,6 @@
-package com.example.expensetrackerv1.feature.home
+package com.example.expensetrackerv1.screens.home
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,8 +12,6 @@ import com.example.expensetrackerv1.data.FirebaseDatabase
 import com.example.expensetrackerv1.utils.Utils
 import com.example.expensetrackerv1.data.dao.ExpenseDao
 import com.example.expensetrackerv1.data.model.ExpenseEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
 

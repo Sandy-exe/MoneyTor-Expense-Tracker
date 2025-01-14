@@ -30,7 +30,7 @@ The project is organized into multiple modules to keep the codebase clean and ma
 - **background**: Contains classes for handling background services like syncing and notifications.
 - **base**: Contains base classes such as ViewModels and events for navigation handling.
 - **data**: Manages the database interactions, including the Room Database (DAO) and Firebase database integration.
-- **feature**: Contains the features of the app, such as the add_expense, home, stats, and transactionlist modules.
+- **Screens**: Contains the Screens of the app, such as the add_expense, home, stats, and transactionlist modules.
 - **notification**: Manages syncing notifications to keep users informed of the sync status.
 - **ui**: Contains all UI-related components, including themes and styles.
 - **utils**: Provides utility classes for tasks like network connectivity and general utilities.

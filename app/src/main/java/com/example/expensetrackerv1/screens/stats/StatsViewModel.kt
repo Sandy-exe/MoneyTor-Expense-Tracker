@@ -1,4 +1,4 @@
-package com.example.expensetrackerv1.feature.stats
+package com.example.expensetrackerv1.screens.stats
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

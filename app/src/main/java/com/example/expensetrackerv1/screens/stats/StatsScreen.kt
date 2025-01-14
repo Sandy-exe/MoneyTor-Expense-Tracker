@@ -1,4 +1,4 @@
-package com.example.expensetrackerv1.feature.stats
+package com.example.expensetrackerv1.screens.stats
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetrackerv1.R
 import com.example.expensetrackerv1.utils.Utils
-import com.example.expensetrackerv1.feature.home.TransactionList
+import com.example.expensetrackerv1.screens.home.TransactionList
 import com.example.expensetrackerv1.widget.ExpenseTextView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -74,8 +74,6 @@ fun StatsScreen(navController: NavController) {
         val topExpense = viewModel.topEntries.collectAsState(initial = emptyList())
         Column(modifier = Modifier.padding(it)) {
             val entries = viewModel.getEntriesForChart(dataState.value)
-            println(entries)
-
             if (entries.isEmpty()) {
                 // Show image if entries is empty
                 Box(

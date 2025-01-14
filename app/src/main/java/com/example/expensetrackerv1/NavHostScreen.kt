@@ -20,10 +20,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.expensetrackerv1.feature.add_expense.EditExpense
-import com.example.expensetrackerv1.feature.home.HomeScreen
-import com.example.expensetrackerv1.feature.stats.StatsScreen
-import com.example.expensetrackerv1.feature.transactionlist.TransactionListScreen
+import com.example.expensetrackerv1.screens.add_expense.EditExpense
+import com.example.expensetrackerv1.screens.home.HomeScreen
+import com.example.expensetrackerv1.screens.stats.StatsScreen
+import com.example.expensetrackerv1.screens.transactionlist.TransactionListScreen
 import com.example.expensetrackerv1.ui.theme.Zinc
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.expensetrackerv1.data.model.ExpenseEntity

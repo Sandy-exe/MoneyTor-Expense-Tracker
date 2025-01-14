@@ -31,8 +31,7 @@ class FirebaseDatabase {
                 doc.toObject(ExpenseEntity::class.java)
             }
 
-            println(firebaseExpenses)
-
+  
             // Fetch all local expenses from Room database
             val localExpenses = expenseDao.getAllExpense().first()
 
@@ -59,7 +58,7 @@ class FirebaseDatabase {
 
         } catch (e: Exception) {
             sendSyncBroadcast(context, "Un Expected Error")
-            println(e)
+            println("e")
             e.printStackTrace() // Log errors, e.g., no internet connection
         }
     }
@@ -91,7 +90,7 @@ class FirebaseDatabase {
                 .await()
             true
         } catch (e: Exception) {
-            println(e)
+            println("e")
             false
         }
     }
@@ -105,7 +104,7 @@ class FirebaseDatabase {
             }
             expenses
         } catch (e: Exception) {
-            println(e)
+            println("e")
             emptyList()  // Return empty list in case of error
         }
     }
@@ -120,7 +119,7 @@ class FirebaseDatabase {
 
             snapshot.documents.firstOrNull()?.toObject(ExpenseEntity::class.java)
         } catch (e: Exception) {
-            println(e)
+            println("e")
             null
         }
     }
@@ -172,7 +171,7 @@ class FirebaseDatabase {
                 false
             }
         } catch (e: Exception) {
-            println(e)
+            println("e")
             false
         }
     }
@@ -195,7 +194,7 @@ class FirebaseDatabase {
                 false
             }
         } catch (e: Exception) {
-            println(e)
+            println("e")
             false
         }
     }

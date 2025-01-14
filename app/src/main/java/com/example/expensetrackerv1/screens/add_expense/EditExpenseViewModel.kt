@@ -1,4 +1,4 @@
-package com.example.expensetrackerv1.feature.add_expense
+package com.example.expensetrackerv1.screens.add_expense
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -41,7 +41,6 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
     private suspend fun addExpense(expenseEntity: ExpenseEntity,isOnline: Boolean): Boolean {
         return try {
             dao.insertExpense(expenseEntity)
-            println(expenseEntity.id)
             println("Expense Added successfully")
 
             val lastExpense = dao.getLastExpense()
@@ -81,10 +80,7 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
     private suspend fun updateExpense(expenseEntity: ExpenseEntity, isOnline: Boolean): Boolean {
         return try {
             dao.updateExpense(expenseEntity)
-            println(expenseEntity.id)
             println("Expense updated successfully")
-
-            println(isOnline)
 
             if (isOnline) {
                 try {
@@ -118,7 +114,6 @@ class EditExpenseViewModel(private val dao: ExpenseDao, private val expensePendi
     private suspend fun deleteExpense(expenseEntity: ExpenseEntity, isOnline: Boolean): Boolean {
         return try {
             dao.deleteExpense(expenseEntity)
-            println(expenseEntity.id)
             println("Expense deleted successfully")
 
             if (isOnline) {

@@ -1,4 +1,4 @@
-package com.example.expensetrackerv1.feature.home
+package com.example.expensetrackerv1.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -75,6 +75,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.unit.Dp
+import com.example.expensetrackerv1.widget.ActionIcon
+import com.example.expensetrackerv1.widget.SwippableItemWithActions
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -302,142 +304,6 @@ fun CardItem(
 
     }
 }
-
-
-@Composable
-fun ActionIcon(
-    onClick: () -> Unit,
-    backgroundColor: Color,
-    icon: ImageVector,
-    modifier: Modifier = Modifier,
-    contentDescription: String? = null,
-    tint: Color = Color.White,
-    padding: Dp = 16.dp
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .clip(RoundedCornerShape(10)) // Rounded button
-            .background(backgroundColor)
-            .clickable(
-                onClick = onClick,
-            )
-            .padding(padding)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = tint
-        )
-    }
-}
-
-@Composable
-fun SwippableItemWithActions(
-    isRevealedLeft: Boolean,
-    isRevealedRight: Boolean,
-    beforeContentActions: @Composable RowScope.() -> Unit = {}, // Actions for left swipe
-    afterContentActions: @Composable RowScope.() -> Unit = {},  // Actions for right swipe
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    var beforeActionsWidth by remember { mutableFloatStateOf(0f) }
-    var afterActionsWidth by remember { mutableFloatStateOf(0f) }
-    val offset = remember { Animatable(0f) } // 0: content, +ve: right swipe, -ve: left swipe
-    val scope = rememberCoroutineScope()
-
-    // Sync offset with the revealed state
-    LaunchedEffect(key1 = isRevealedLeft, key2 = isRevealedRight) {
-        if (isRevealedLeft) {
-            offset.animateTo(-beforeActionsWidth)
-        } else if (isRevealedRight) {
-            offset.animateTo(afterActionsWidth)
-        } else {
-            offset.animateTo(0f)
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-    ) {
-        // Actions behind the content
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    beforeActionsWidth = it.width.toFloat() / 5 // Left swipe area width
-                    afterActionsWidth = it.width.toFloat() / 5 // Right swipe area width
-                },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            // Left swipe actions (before content)
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .height(IntrinsicSize.Min),
-
-                contentAlignment = Alignment.Center
-            ) {
-
-                Row(){beforeContentActions()}
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Right swipe actions (after content)
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .height(IntrinsicSize.Min),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Row(){afterContentActions()}
-
-            }
-        }
-
-        // Foreground content
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset { IntOffset(offset.value.roundToInt(), 0) }
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onHorizontalDrag = { _, dragAmount ->
-                            scope.launch {
-                                val newOffset = (offset.value + dragAmount)
-                                    .coerceIn(-beforeActionsWidth, afterActionsWidth)
-                                offset.snapTo(newOffset)
-                            }
-                        },
-                        onDragEnd = {
-                            scope.launch {
-                                when {
-                                    offset.value <= -beforeActionsWidth / 4 -> {
-                                        offset.animateTo(-beforeActionsWidth)
-                                    }
-                                    offset.value >= afterActionsWidth / 4 -> {
-                                        offset.animateTo(afterActionsWidth)
-                                    }
-                                    else -> {
-                                        offset.animateTo(0f)
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
-        ) {
-            content()
-        }
-    }
-}
-
-
 
 
 @Composable

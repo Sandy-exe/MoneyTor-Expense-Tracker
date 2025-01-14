@@ -32,7 +32,7 @@ class SyncViewModel(
                 sync.performInitialSync()
                 _syncState.value = SyncState.Success
             } catch (e: Exception) {
-                println(e)
+                println("e")
                 _syncState.value = SyncState.Error(e)
             }
         }

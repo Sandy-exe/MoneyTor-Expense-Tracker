@@ -1,4 +1,4 @@
-package com.example.expensetrackerv1.feature.transactionlist
+package com.example.expensetrackerv1.screens.transactionlist
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -9,12 +9,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,13 +36,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.expensetrackerv1.R
-import com.example.expensetrackerv1.feature.add_expense.ExpenseDropDown
-import com.example.expensetrackerv1.feature.home.TransactionItem
+import com.example.expensetrackerv1.screens.add_expense.ExpenseDropDown
+import com.example.expensetrackerv1.screens.home.TransactionItem
 import com.example.expensetrackerv1.utils.Utils
-import com.example.expensetrackerv1.feature.home.HomeViewModel
-import com.example.expensetrackerv1.feature.home.HomeViewModelFactory
+import com.example.expensetrackerv1.screens.home.HomeViewModel
+import com.example.expensetrackerv1.screens.home.HomeViewModelFactory
 import com.example.expensetrackerv1.ui.theme.DarkGreen
+import com.example.expensetrackerv1.ui.theme.Zinc
+import com.example.expensetrackerv1.widget.ActionIcon
 import com.example.expensetrackerv1.widget.ExpenseTextView
+import com.example.expensetrackerv1.widget.SwippableItemWithActions
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -169,18 +178,51 @@ fun TransactionListScreen(navController: NavController) {
                 items(filteredByDateRange) { item ->
                     val icon = Utils.getItemIcon(item)
                     val amount = if (item.type == "Income") item.amount else item.amount * -1
-                    TransactionItem(
-                        title = item.title,
-                        amount = amount.toString(),
-                        icon = icon,
-                        date = item.date,
-                        color = DarkGreen,
-                        Modifier.animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                            placementSpec = tween(100)
-                        )
+
+                    SwippableItemWithActions(
+                        isRevealedLeft = false,
+                        isRevealedRight = false,
+
+                        {
+                            ActionIcon(
+                                onClick = {
+                                    val json = Json.encodeToString(item)
+                                    navController.navigate("/update_income_expense?expenseEntity=$json")
+                                },
+                                backgroundColor = Zinc,
+                                icon = Icons.Default.Edit,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+
+                        },
+                        {
+                            ActionIcon(
+                                onClick = {
+                                    val json = Json.encodeToString(item)
+                                    navController.navigate("/delete_income_expense?expenseEntity=$json")
+                                },
+                                backgroundColor = Zinc,
+                                icon = Icons.Default.Delete,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
+                    {
+                        TransactionItem(
+                            title = item.title,
+                            amount = amount.toString(),
+                            icon = icon,
+                            date = item.date,
+                            color = DarkGreen,
+                            Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = tween(100)
+                            )
+                        )
+                    }
                 }
             }
         }
