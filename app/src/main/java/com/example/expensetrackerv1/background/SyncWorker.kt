@@ -37,12 +37,8 @@ class SyncWorker(
                     else -> handleUnknownOperation(sync)
                 }
 
-                // Delete the processed entry from the table
+                firestore.sendSyncBroadcast(context = appContext, "Database up-to-date")
                 dao.deletePendingSync(sync)
-            }
-
-            Handler(Looper.getMainLooper()).post {
-                Toast.makeText(applicationContext, "Database Up-to-date!!", Toast.LENGTH_SHORT).show()
             }
             return Result.success()
     }

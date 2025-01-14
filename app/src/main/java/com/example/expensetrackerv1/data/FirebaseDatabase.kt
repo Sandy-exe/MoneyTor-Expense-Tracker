@@ -14,7 +14,7 @@ class FirebaseDatabase {
 
     private val firestore = Firebase.firestore
 
-    private fun sendSyncBroadcast(context: Context, message: String, title: String = "Syncing with Firebase") {
+    fun sendSyncBroadcast(context: Context, message: String, title: String = "Syncing with Firebase") {
         val intent = Intent(context, SyncingNotificationReceiver::class.java).apply {
             putExtra("Text", message,)  // Add the message to the Intent
             putExtra("title", title,)

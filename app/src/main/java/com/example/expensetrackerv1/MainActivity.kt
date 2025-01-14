@@ -91,8 +91,8 @@ class MainActivity : ComponentActivity() {
                             .build()
 
                         val workRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-                            repeatInterval = 15,
-                            repeatIntervalTimeUnit = TimeUnit.MINUTES // Use a reasonable interval
+                            repeatInterval = 1,
+                            repeatIntervalTimeUnit = TimeUnit.HOURS // Use a reasonable interval
                         ).addTag(workTag) // Add a unique tag to this work request
                             .setConstraints(constraints)
                             .setBackoffCriteria(
