@@ -89,6 +89,15 @@ Feel free to check out these images to understand the app layout and design bett
 
 Check out the demo video of **MONEYtor** showing its key features and functionalities:
 
+1) Basic CRUD and Filter Functionalties:
+
+https://github.com/user-attachments/assets/ca675bc3-96b4-4398-b5ae-93965bea871a
+
+2) Firebase Manual Sync Option
+
+
+https://github.com/user-attachments/assets/ae87c0d7-f304-44ba-a688-9b075b835dac
+
 
 ## Thanks
 
